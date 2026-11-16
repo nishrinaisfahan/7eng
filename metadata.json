@@ -1,0 +1,6 @@
+{
+  "name": "SunnyEnglish",
+  "description": "A bright, pastel Grade 7 English learning studio with picture flashcards, audio practice, gamified sentence lessons, interactive quizzes, progress tracking, and a real-time conversation tutor.",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
