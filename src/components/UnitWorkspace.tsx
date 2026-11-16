@@ -46,7 +46,6 @@ export const UnitWorkspace: React.FC<UnitWorkspaceProps> = ({
   const shuffledSteps = useMemo(() => {
     if (!unit.sequenceSteps) return [];
     const copy = [...unit.sequenceSteps];
-    // Deterministic friendly shuffle so step 1 is not already first
     return [copy[2], copy[0], copy[4], copy[1], copy[3]].filter(Boolean);
   }, [unit]);
 
@@ -139,9 +138,9 @@ export const UnitWorkspace: React.FC<UnitWorkspaceProps> = ({
         <button
           type="button"
           onClick={onBack}
-          className="inline-flex items-center gap-2 text-sm font-medium text-[#525B70] hover:text-[#242938] self-start cursor-pointer"
+          className="inline-flex items-center gap-2 min-h-[40px] px-2 text-sm font-medium text-[#4A5368] hover:text-[#242938] self-start cursor-pointer rounded-lg"
         >
-          <ArrowLeft className="w-4 h-4" />
+          <ArrowLeft className="w-4 h-4" aria-hidden="true" />
           <span>Back to All Units</span>
         </button>
 
@@ -149,7 +148,7 @@ export const UnitWorkspace: React.FC<UnitWorkspaceProps> = ({
           className={`${unit.pastelCardBg} border border-[#EAE2D6] rounded-3xl p-6 sm:p-8 grid grid-cols-1 lg:grid-cols-12 gap-6 items-center`}
         >
           <div className="lg:col-span-8 space-y-3">
-            <div className="text-xs font-medium text-[#5E677D]">
+            <div className="text-xs font-medium text-[#4A5368]">
               <span>{unit.number}</span>
               <span aria-hidden="true"> · </span>
               <span>{unit.summary}</span>
@@ -157,12 +156,12 @@ export const UnitWorkspace: React.FC<UnitWorkspaceProps> = ({
             <h1 className="font-display text-2xl sm:text-3xl font-bold text-[#242938]">
               {unit.title}
             </h1>
-            <p className="text-base text-[#4A5368] max-w-2xl">{unit.subtitle}</p>
+            <p className="text-base text-[#3D4559] max-w-2xl">{unit.subtitle}</p>
             <div className="pt-2 flex flex-wrap items-center gap-3">
               <button
                 type="button"
                 onClick={() => onOpenFlashcardsForUnit(unit.id)}
-                className="px-4 py-2 rounded-xl bg-white hover:bg-[#FAF6F0] border border-[#E6DCD0] text-sm font-semibold text-[#242938] transition-colors cursor-pointer"
+                className="px-4 py-2.5 min-h-[44px] rounded-xl bg-white hover:bg-[#FAF6F0] border border-[#D8CCBE] text-sm font-semibold text-[#242938] transition-colors cursor-pointer"
               >
                 Practice {unitFlashcards.length} Unit Flashcards
               </button>
@@ -171,7 +170,7 @@ export const UnitWorkspace: React.FC<UnitWorkspaceProps> = ({
           <div className="lg:col-span-4 aspect-[4/3] rounded-2xl overflow-hidden border border-[#EAE2D6] bg-white">
             <img
               src={UNIT_IMAGES[unit.id]}
-              alt={unit.title}
+              alt={`Storybook illustration for ${unit.title}`}
               referrerPolicy="no-referrer"
               className="w-full h-full object-cover"
             />
@@ -187,52 +186,58 @@ export const UnitWorkspace: React.FC<UnitWorkspaceProps> = ({
           className="inline-flex flex-wrap items-center gap-1 p-1 bg-[#F4EFE6] rounded-xl"
         >
           <button
+            id="tab-lesson"
             type="button"
             role="tab"
             aria-selected={section === "lesson"}
+            aria-controls="panel-lesson"
             onClick={() => setSection("lesson")}
-            className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
+            className={`px-4 py-2.5 min-h-[40px] text-sm font-semibold rounded-lg transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
               section === "lesson"
                 ? "bg-white text-[#242938] shadow-xs"
-                : "text-[#525B70] hover:text-[#242938]"
+                : "text-[#4A5368] hover:text-[#242938]"
             }`}
           >
             01. Dialogue & Grammar
           </button>
           <button
+            id="tab-exercise"
             type="button"
             role="tab"
             aria-selected={section === "exercise"}
+            aria-controls="panel-exercise"
             onClick={() => setSection("exercise")}
-            className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
+            className={`px-4 py-2.5 min-h-[40px] text-sm font-semibold rounded-lg transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
               section === "exercise"
                 ? "bg-white text-[#242938] shadow-xs"
-                : "text-[#525B70] hover:text-[#242938]"
+                : "text-[#4A5368] hover:text-[#242938]"
             }`}
           >
             02. Interactive Exercise
           </button>
           <button
+            id="tab-quiz"
             type="button"
             role="tab"
             aria-selected={section === "quiz"}
+            aria-controls="panel-quiz"
             onClick={() => setSection("quiz")}
-            className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
+            className={`px-4 py-2.5 min-h-[40px] text-sm font-semibold rounded-lg transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
               section === "quiz"
                 ? "bg-white text-[#242938] shadow-xs"
-                : "text-[#525B70] hover:text-[#242938]"
+                : "text-[#4A5368] hover:text-[#242938]"
             }`}
           >
             03. Fun Quiz
           </button>
         </div>
 
-        <label className="inline-flex items-center gap-2 text-sm text-[#4A5368] cursor-pointer select-none">
+        <label className="inline-flex items-center gap-2.5 min-h-[40px] text-sm text-[#3D4559] cursor-pointer select-none">
           <input
             type="checkbox"
             checked={slowAudio}
             onChange={(e) => setSlowAudio(e.target.checked)}
-            className="w-4 h-4 accent-[#3A72D2] rounded cursor-pointer"
+            className="w-5 h-5 accent-[#295CB8] rounded cursor-pointer"
           />
           <span>Slow audio speed (0.75x)</span>
         </label>
@@ -240,12 +245,17 @@ export const UnitWorkspace: React.FC<UnitWorkspaceProps> = ({
 
       {/* Section 01: Dialogue & Grammar */}
       {section === "lesson" && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div
+          id="panel-lesson"
+          role="tabpanel"
+          aria-labelledby="tab-lesson"
+          className="grid grid-cols-1 lg:grid-cols-12 gap-8"
+        >
           <div className="lg:col-span-7 space-y-6">
             <div className="bg-white border border-[#EDE6DA] rounded-3xl p-6 sm:p-7 space-y-5">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <p className="text-xs font-medium text-[#5E677D]">
+                  <p className="text-xs font-medium text-[#4A5368]">
                     Read & Listen Dialogue
                   </p>
                   <h2 className="font-display text-xl font-bold text-[#242938]">
@@ -260,9 +270,9 @@ export const UnitWorkspace: React.FC<UnitWorkspaceProps> = ({
                       99
                     )
                   }
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#EEF4FF] hover:bg-[#E1ECFF] text-[#2959A8] text-sm font-semibold transition-colors cursor-pointer"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 min-h-[44px] rounded-xl bg-[#EEF4FF] hover:bg-[#E1ECFF] text-[#234C94] text-sm font-semibold transition-colors cursor-pointer"
                 >
-                  <Volume2 className="w-4 h-4" />
+                  <Volume2 className="w-4 h-4" aria-hidden="true" />
                   <span>{playingLineIdx === 99 ? "Speaking..." : "Listen All"}</span>
                 </button>
               </div>
@@ -274,7 +284,7 @@ export const UnitWorkspace: React.FC<UnitWorkspaceProps> = ({
                     className="flex items-start justify-between gap-4 p-4 rounded-2xl bg-[#FAF8F4] border border-[#EFE9DF]"
                   >
                     <div className="space-y-1">
-                      <p className="text-xs font-semibold text-[#5E677D]">
+                      <p className="text-xs font-semibold text-[#4A5368]">
                         {line.speaker}
                       </p>
                       <p className="text-base text-[#242938] leading-relaxed">
@@ -284,14 +294,14 @@ export const UnitWorkspace: React.FC<UnitWorkspaceProps> = ({
                     <button
                       type="button"
                       onClick={() => handleSpeakLine(line.text, idx)}
-                      aria-label={`Listen to ${line.speaker}`}
-                      className={`shrink-0 w-10 h-10 rounded-xl flex items-center justify-center border transition-colors cursor-pointer ${
+                      aria-label={`Listen to ${line.speaker}: ${line.text}`}
+                      className={`shrink-0 w-11 h-11 rounded-xl flex items-center justify-center border transition-colors cursor-pointer ${
                         playingLineIdx === idx
-                          ? "bg-[#3A72D2] text-white border-[#3A72D2]"
-                          : "bg-white text-[#4A5368] border-[#E6DCD0] hover:bg-[#F3EFE8]"
+                          ? "bg-[#295CB8] text-white border-[#295CB8]"
+                          : "bg-white text-[#3D4559] border-[#D8CCBE] hover:bg-[#F3EFE8]"
                       }`}
                     >
-                      <Volume2 className="w-4 h-4" />
+                      <Volume2 className="w-4 h-4" aria-hidden="true" />
                     </button>
                   </div>
                 ))}
@@ -307,7 +317,7 @@ export const UnitWorkspace: React.FC<UnitWorkspaceProps> = ({
                 <button
                   type="button"
                   onClick={() => onOpenFlashcardsForUnit(unit.id)}
-                  className="text-sm font-semibold text-[#3A72D2] hover:underline cursor-pointer"
+                  className="text-sm font-semibold text-[#234C94] hover:underline cursor-pointer min-h-[40px]"
                 >
                   Open Flashcards →
                 </button>
@@ -317,15 +327,16 @@ export const UnitWorkspace: React.FC<UnitWorkspaceProps> = ({
                   <button
                     key={card.id}
                     type="button"
+                    aria-label={`Hear vocabulary word ${card.word}`}
                     onClick={() => speakEnglish(card.word, { slow: slowAudio })}
-                    className={`${card.pastelSurface} border border-[#EAE2D6] rounded-2xl p-4 text-left hover:shadow-xs transition-shadow cursor-pointer flex flex-col items-center text-center gap-2`}
+                    className={`${card.pastelSurface} border border-[#E4D9CB] rounded-2xl p-4 text-left hover:shadow-xs transition-shadow cursor-pointer flex flex-col items-center text-center gap-2 min-h-[120px]`}
                   >
                     <CuteIllustration kind={card.illustration} className="w-16 h-16" />
                     <span className="font-display font-semibold text-sm text-[#242938]">
                       {card.word}
                     </span>
-                    <span className="text-xs text-[#5E677D] inline-flex items-center gap-1">
-                      <Volume2 className="w-3 h-3" /> Tap to hear
+                    <span className="text-xs text-[#4A5368] inline-flex items-center gap-1">
+                      <Volume2 className="w-3.5 h-3.5" aria-hidden="true" /> Tap to hear
                     </span>
                   </button>
                 ))}
@@ -340,16 +351,16 @@ export const UnitWorkspace: React.FC<UnitWorkspaceProps> = ({
                 key={idx}
                 className="bg-white border border-[#EDE6DA] rounded-3xl p-6 space-y-3"
               >
-                <p className="text-xs font-medium text-[#5E677D]">
+                <p className="text-xs font-medium text-[#4A5368]">
                   Grammar Pattern {idx + 1}
                 </p>
                 <h3 className="font-display text-lg font-bold text-[#242938]">
                   {gp.title}
                 </h3>
-                <div className="p-3.5 rounded-xl bg-[#F4F8FF] border border-[#DCE7FA] font-mono text-xs sm:text-sm text-[#234580]">
+                <div className="p-3.5 rounded-xl bg-[#F4F8FF] border border-[#D4E2F8] font-mono text-xs sm:text-sm text-[#1F3F75]">
                   {gp.pattern}
                 </div>
-                <p className="text-sm text-[#4A5368] leading-relaxed">
+                <p className="text-sm text-[#3D4559] leading-relaxed">
                   {gp.explanation}
                 </p>
                 <div className="pt-2 space-y-2">
@@ -362,10 +373,10 @@ export const UnitWorkspace: React.FC<UnitWorkspaceProps> = ({
                       <button
                         type="button"
                         onClick={() => speakEnglish(ex, { slow: slowAudio })}
-                        aria-label="Listen to example"
-                        className="shrink-0 w-8 h-8 rounded-lg bg-white border border-[#E6DCD0] flex items-center justify-center text-[#4A5368] hover:text-[#242938] cursor-pointer"
+                        aria-label={`Listen to example: ${ex}`}
+                        className="shrink-0 w-10 h-10 rounded-lg bg-white border border-[#D8CCBE] flex items-center justify-center text-[#3D4559] hover:text-[#242938] cursor-pointer"
                       >
-                        <Volume2 className="w-3.5 h-3.5" />
+                        <Volume2 className="w-4 h-4" aria-hidden="true" />
                       </button>
                     </div>
                   ))}
@@ -373,19 +384,24 @@ export const UnitWorkspace: React.FC<UnitWorkspaceProps> = ({
               </div>
             ))}
 
-            <div className="bg-[#EEFBF4] border border-[#CDEEDB] rounded-3xl p-6 space-y-4">
+            <div className="bg-[#EEFBF4] border border-[#BEE5CF] rounded-3xl p-6 space-y-4">
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <h3 className="font-display text-lg font-bold text-[#1D5F42]">
+                  <h3 className="font-display text-lg font-bold text-[#154F35]">
                     {isLessonDone ? "Lesson Completed" : "Ready for the next step?"}
                   </h3>
-                  <p className="text-sm text-[#2E7354] mt-1">
+                  <p className="text-sm text-[#1F6344] mt-1">
                     {isLessonDone
                       ? "You earned 25 XP for reading and listening to this unit."
                       : "Mark this lesson complete to earn +25 XP and try the interactive exercise."}
                   </p>
                 </div>
-                {isLessonDone && <CheckCircle2 className="w-6 h-6 text-[#1C8B5C] shrink-0" />}
+                {isLessonDone && (
+                  <CheckCircle2
+                    className="w-6 h-6 text-[#167854] shrink-0"
+                    aria-label="Lesson completed"
+                  />
+                )}
               </div>
 
               <div className="flex flex-wrap gap-3">
@@ -393,7 +409,7 @@ export const UnitWorkspace: React.FC<UnitWorkspaceProps> = ({
                   <button
                     type="button"
                     onClick={() => onCompleteLesson(unit.id, unit.title)}
-                    className="px-4 py-2.5 rounded-xl bg-[#22946A] hover:bg-[#1B7A57] text-white text-sm font-semibold transition-colors cursor-pointer"
+                    className="px-4 py-2.5 min-h-[44px] rounded-xl bg-[#167854] hover:bg-[#116143] text-white text-sm font-semibold transition-colors cursor-pointer"
                   >
                     Mark Lesson Complete (+25 XP)
                   </button>
@@ -401,7 +417,7 @@ export const UnitWorkspace: React.FC<UnitWorkspaceProps> = ({
                 <button
                   type="button"
                   onClick={() => setSection("exercise")}
-                  className="px-4 py-2.5 rounded-xl bg-white hover:bg-[#F7FCF9] border border-[#BDE5CF] text-[#1D5F42] text-sm font-semibold transition-colors cursor-pointer"
+                  className="px-4 py-2.5 min-h-[44px] rounded-xl bg-white hover:bg-[#F7FCF9] border border-[#9CD7B8] text-[#154F35] text-sm font-semibold transition-colors cursor-pointer"
                 >
                   Go to Interactive Exercise →
                 </button>
@@ -413,16 +429,21 @@ export const UnitWorkspace: React.FC<UnitWorkspaceProps> = ({
 
       {/* Section 02: Interactive Exercise */}
       {section === "exercise" && (
-        <div className="bg-white border border-[#EDE6DA] rounded-3xl p-6 sm:p-8 space-y-6 max-w-4xl">
+        <div
+          id="panel-exercise"
+          role="tabpanel"
+          aria-labelledby="tab-exercise"
+          className="bg-white border border-[#EDE6DA] rounded-3xl p-6 sm:p-8 space-y-6 max-w-4xl"
+        >
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
-              <p className="text-xs font-medium text-[#5E677D]">
+              <p className="text-xs font-medium text-[#4A5368]">
                 Hands-On Practice {isExerciseDone ? "· Completed" : ""}
               </p>
               <h2 className="font-display text-2xl font-bold text-[#242938] mt-1">
                 {unit.exerciseTitle}
               </h2>
-              <p className="text-sm text-[#4A5368] mt-1">
+              <p className="text-sm text-[#3D4559] mt-1">
                 {unit.exerciseInstruction}
               </p>
             </div>
@@ -443,17 +464,18 @@ export const UnitWorkspace: React.FC<UnitWorkspaceProps> = ({
                         <button
                           key={step.id}
                           type="button"
+                          aria-pressed={isPicked}
                           onClick={() => handleToggleSequenceStep(step.id)}
                           disabled={sequenceChecked}
-                          className={`w-full text-left p-4 rounded-2xl border text-sm transition-colors cursor-pointer flex items-center justify-between gap-3 ${
+                          className={`w-full text-left p-4 min-h-[56px] rounded-2xl border text-sm transition-colors cursor-pointer flex items-center justify-between gap-3 ${
                             isPicked
-                              ? "bg-[#EEF4FF] border-[#8FB3F2] text-[#1E3F7D] font-medium"
-                              : "bg-[#FAF8F4] border-[#EAE2D6] text-[#242938] hover:bg-[#F3EFE8]"
+                              ? "bg-[#EEF4FF] border-[#6E9CE8] text-[#1A3973] font-medium"
+                              : "bg-[#FAF8F4] border-[#DFD5C7] text-[#242938] hover:bg-[#F3EFE8]"
                           }`}
                         >
                           <span>{step.text}</span>
                           {isPicked && (
-                            <span className="font-mono text-xs font-bold px-2 py-0.5 rounded-md bg-white border border-[#C6DAF9] shrink-0">
+                            <span className="font-mono text-xs font-bold px-2 py-0.5 rounded-md bg-white border border-[#B5CFF7] shrink-0">
                               #{pickedIndex + 1}
                             </span>
                           )}
@@ -479,14 +501,14 @@ export const UnitWorkspace: React.FC<UnitWorkspaceProps> = ({
                           key={expectedStep.id}
                           className={`p-4 rounded-2xl border min-h-[60px] flex items-center justify-between gap-3 text-sm ${
                             isSlotRight
-                              ? "bg-[#EEFAF3] border-[#6ED09C] text-[#185C3C]"
+                              ? "bg-[#EEFAF3] border-[#52B782] text-[#145338]"
                               : isSlotWrong
-                              ? "bg-[#FFF1F0] border-[#F49B94] text-[#9E2B25]"
-                              : "bg-[#FFFDF9] border-[#EAE2D6] text-[#4A5368]"
+                              ? "bg-[#FFF1F0] border-[#E07C73] text-[#8F231C]"
+                              : "bg-[#FFFDF9] border-[#DFD5C7] text-[#3D4559]"
                           }`}
                         >
                           <div className="flex items-start gap-3">
-                            <span className="font-mono text-xs font-bold mt-0.5 text-[#5E677D]">
+                            <span className="font-mono text-xs font-bold mt-0.5 text-[#4A5368]">
                               {slotIdx + 1}.
                             </span>
                             <span>
@@ -496,10 +518,16 @@ export const UnitWorkspace: React.FC<UnitWorkspaceProps> = ({
                             </span>
                           </div>
                           {isSlotRight && (
-                            <CheckCircle2 className="w-5 h-5 text-[#1B8A5A] shrink-0" />
+                            <CheckCircle2
+                              className="w-5 h-5 text-[#167854] shrink-0"
+                              aria-label="Correct position"
+                            />
                           )}
                           {isSlotWrong && (
-                            <XCircle className="w-5 h-5 text-[#D1433A] shrink-0" />
+                            <XCircle
+                              className="w-5 h-5 text-[#C84331] shrink-0"
+                              aria-label="Incorrect position"
+                            />
                           )}
                         </div>
                       );
@@ -510,19 +538,21 @@ export const UnitWorkspace: React.FC<UnitWorkspaceProps> = ({
 
               {sequenceChecked && (
                 <div
+                  role="status"
+                  aria-live="polite"
                   className={`p-4 rounded-2xl border flex items-start gap-3 text-sm ${
                     unit.sequenceSteps.every(
                       (step, idx) => selectedOrderIds[idx] === step.id
                     )
-                      ? "bg-[#EEFAF3] border-[#BDE5CF] text-[#185C3C]"
-                      : "bg-[#FFF6EB] border-[#F5D6A8] text-[#7D4F12]"
+                      ? "bg-[#EEFAF3] border-[#9CD7B8] text-[#145338]"
+                      : "bg-[#FFF6EB] border-[#E8BE7D] text-[#6B420D]"
                   }`}
                 >
                   {unit.sequenceSteps.every(
                     (step, idx) => selectedOrderIds[idx] === step.id
                   ) ? (
                     <>
-                      <CheckCircle2 className="w-5 h-5 shrink-0 mt-0.5" />
+                      <CheckCircle2 className="w-5 h-5 shrink-0 mt-0.5" aria-hidden="true" />
                       <div>
                         <p className="font-semibold">
                           Awesome sequencing! Everything is in the natural order (+30 XP).
@@ -531,7 +561,7 @@ export const UnitWorkspace: React.FC<UnitWorkspaceProps> = ({
                     </>
                   ) : (
                     <>
-                      <XCircle className="w-5 h-5 shrink-0 mt-0.5" />
+                      <XCircle className="w-5 h-5 shrink-0 mt-0.5" aria-hidden="true" />
                       <div>
                         <p className="font-semibold">
                           Almost there! Follow the clues: First → Next → Then → After/Pour → Finally.
@@ -551,16 +581,16 @@ export const UnitWorkspace: React.FC<UnitWorkspaceProps> = ({
                     selectedOrderIds.length < unit.sequenceSteps.length ||
                     sequenceChecked
                   }
-                  className="px-5 py-2.5 rounded-xl bg-[#242938] hover:bg-[#383F54] disabled:opacity-45 text-white text-sm font-semibold transition-colors cursor-pointer"
+                  className="px-5 py-2.5 min-h-[44px] rounded-xl bg-[#242938] hover:bg-[#383F54] disabled:opacity-45 text-white text-sm font-semibold transition-colors cursor-pointer"
                 >
                   Check My Order
                 </button>
                 <button
                   type="button"
                   onClick={handleResetSequence}
-                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white hover:bg-[#FAF6F0] border border-[#E6DCD0] text-sm font-semibold text-[#242938] transition-colors cursor-pointer"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 min-h-[44px] rounded-xl bg-white hover:bg-[#FAF6F0] border border-[#D8CCBE] text-sm font-semibold text-[#242938] transition-colors cursor-pointer"
                 >
-                  <RotateCcw className="w-4 h-4" />
+                  <RotateCcw className="w-4 h-4" aria-hidden="true" />
                   <span>Reset</span>
                 </button>
               </div>
@@ -575,28 +605,34 @@ export const UnitWorkspace: React.FC<UnitWorkspaceProps> = ({
                 const isWrong = fillChecked && chosen !== item.answer;
 
                 return (
-                  <div
+                  <fieldset
                     key={item.id}
                     className="p-5 rounded-2xl bg-[#FAF8F4] border border-[#EAE2D6] space-y-3"
                   >
-                    <p className="text-sm font-semibold text-[#242938]">
+                    <legend className="text-sm font-semibold text-[#242938] px-1">
                       {idx + 1}. {item.prompt}
-                    </p>
-                    <div className="flex flex-wrap gap-2.5">
+                    </legend>
+                    <div
+                      role="radiogroup"
+                      aria-label={`Choices for question ${idx + 1}`}
+                      className="flex flex-wrap gap-2.5"
+                    >
                       {item.options.map((opt) => {
                         const selected = chosen === opt;
                         return (
                           <button
                             key={opt}
                             type="button"
+                            role="radio"
+                            aria-checked={selected}
                             disabled={fillChecked}
                             onClick={() =>
                               setFillAnswers((prev) => ({ ...prev, [item.id]: opt }))
                             }
-                            className={`px-4 py-2 rounded-xl text-sm font-semibold border transition-colors cursor-pointer ${
+                            className={`px-4 py-2.5 min-h-[44px] rounded-xl text-sm font-semibold border transition-colors cursor-pointer ${
                               selected
-                                ? "bg-[#3A72D2] text-white border-[#3A72D2]"
-                                : "bg-white text-[#242938] border-[#E6DCD0] hover:bg-[#F3EFE8]"
+                                ? "bg-[#295CB8] text-white border-[#295CB8]"
+                                : "bg-white text-[#242938] border-[#D8CCBE] hover:bg-[#F3EFE8]"
                             }`}
                           >
                             {opt}
@@ -607,18 +643,20 @@ export const UnitWorkspace: React.FC<UnitWorkspaceProps> = ({
 
                     {fillChecked && (
                       <div
+                        role="status"
+                        aria-live="polite"
                         className={`flex items-start gap-2.5 p-3 rounded-xl text-sm ${
                           isCorrect
-                            ? "bg-[#EEFAF3] text-[#185C3C]"
+                            ? "bg-[#EEFAF3] text-[#145338]"
                             : isWrong
-                            ? "bg-[#FFF1F0] text-[#9E2B25]"
+                            ? "bg-[#FFF1F0] text-[#8F231C]"
                             : ""
                         }`}
                       >
                         {isCorrect ? (
-                          <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" />
+                          <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" aria-hidden="true" />
                         ) : (
-                          <XCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                          <XCircle className="w-4 h-4 shrink-0 mt-0.5" aria-hidden="true" />
                         )}
                         <span>
                           <strong>
@@ -628,7 +666,7 @@ export const UnitWorkspace: React.FC<UnitWorkspaceProps> = ({
                         </span>
                       </div>
                     )}
-                  </div>
+                  </fieldset>
                 );
               })}
 
@@ -640,22 +678,22 @@ export const UnitWorkspace: React.FC<UnitWorkspaceProps> = ({
                     Object.keys(fillAnswers).length < unit.fillPrompts.length ||
                     fillChecked
                   }
-                  className="px-5 py-2.5 rounded-xl bg-[#242938] hover:bg-[#383F54] disabled:opacity-45 text-white text-sm font-semibold transition-colors cursor-pointer"
+                  className="px-5 py-2.5 min-h-[44px] rounded-xl bg-[#242938] hover:bg-[#383F54] disabled:opacity-45 text-white text-sm font-semibold transition-colors cursor-pointer"
                 >
                   Check Answers
                 </button>
                 <button
                   type="button"
                   onClick={handleResetFill}
-                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white hover:bg-[#FAF6F0] border border-[#E6DCD0] text-sm font-semibold text-[#242938] transition-colors cursor-pointer"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 min-h-[44px] rounded-xl bg-white hover:bg-[#FAF6F0] border border-[#D8CCBE] text-sm font-semibold text-[#242938] transition-colors cursor-pointer"
                 >
-                  <RotateCcw className="w-4 h-4" />
+                  <RotateCcw className="w-4 h-4" aria-hidden="true" />
                   <span>Try Again</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setSection("quiz")}
-                  className="px-4 py-2.5 rounded-xl bg-[#EEF4FF] hover:bg-[#E0ECFF] text-[#2959A8] text-sm font-semibold transition-colors cursor-pointer"
+                  className="px-4 py-2.5 min-h-[44px] rounded-xl bg-[#EEF4FF] hover:bg-[#E0ECFF] text-[#234C94] text-sm font-semibold transition-colors cursor-pointer"
                 >
                   Continue to Fun Quiz →
                 </button>
@@ -667,10 +705,15 @@ export const UnitWorkspace: React.FC<UnitWorkspaceProps> = ({
 
       {/* Section 03: Fun Quiz */}
       {section === "quiz" && (
-        <div className="bg-white border border-[#EDE6DA] rounded-3xl p-6 sm:p-8 space-y-6 max-w-4xl">
+        <div
+          id="panel-quiz"
+          role="tabpanel"
+          aria-labelledby="tab-quiz"
+          className="bg-white border border-[#EDE6DA] rounded-3xl p-6 sm:p-8 space-y-6 max-w-4xl"
+        >
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
-              <p className="text-xs font-medium text-[#5E677D]">
+              <p className="text-xs font-medium text-[#4A5368]">
                 Unit Checkup · 5 Questions
                 {savedQuiz
                   ? ` · Best score: ${savedQuiz.bestScore}/${savedQuiz.total}`
@@ -682,7 +725,11 @@ export const UnitWorkspace: React.FC<UnitWorkspaceProps> = ({
             </div>
 
             {quizSubmitted && (
-              <div className="px-4 py-2.5 rounded-2xl bg-[#EEFBF4] border border-[#BDE5CF] text-[#185C3C] text-sm font-semibold tabular-nums">
+              <div
+                role="status"
+                aria-live="polite"
+                className="px-4 py-2.5 rounded-2xl bg-[#EEFBF4] border border-[#9CD7B8] text-[#145338] text-sm font-semibold tabular-nums"
+              >
                 Score: {quizScore} / {unit.quiz.length} (+{quizScore * 10} XP)
               </div>
             )}
@@ -694,63 +741,75 @@ export const UnitWorkspace: React.FC<UnitWorkspaceProps> = ({
               const isCorrect = quizSubmitted && chosenIdx === q.correctIndex;
 
               return (
-                <div
+                <fieldset
                   key={q.id}
                   className="p-5 rounded-2xl bg-[#FAF8F4] border border-[#EAE2D6] space-y-3"
                 >
                   <div className="flex flex-wrap items-start justify-between gap-3">
-                    <p className="text-base font-semibold text-[#242938]">
+                    <legend className="text-base font-semibold text-[#242938] px-1">
                       {qIdx + 1}. {q.question}
-                    </p>
+                    </legend>
                     {q.audioPrompt && (
                       <button
                         type="button"
                         onClick={() =>
                           speakEnglish(q.audioPrompt || "", { slow: slowAudio })
                         }
-                        className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[#EEF4FF] hover:bg-[#E0ECFF] text-[#2959A8] text-xs font-semibold cursor-pointer shrink-0"
+                        className="inline-flex items-center gap-2 px-3.5 py-2 min-h-[40px] rounded-xl bg-[#EEF4FF] hover:bg-[#E0ECFF] text-[#234C94] text-xs font-semibold cursor-pointer shrink-0"
                       >
-                        <Volume2 className="w-4 h-4" />
+                        <Volume2 className="w-4 h-4" aria-hidden="true" />
                         <span>Play Audio Clue</span>
                       </button>
                     )}
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <div
+                    role="radiogroup"
+                    aria-label={`Answer choices for question ${qIdx + 1}`}
+                    className="grid grid-cols-1 sm:grid-cols-2 gap-2.5"
+                  >
                     {q.options.map((opt, oIdx) => {
                       const isSelected = chosenIdx === oIdx;
                       let optionStyle =
-                        "bg-white text-[#242938] border-[#E6DCD0] hover:bg-[#F3EFE8]";
+                        "bg-white text-[#242938] border-[#D8CCBE] hover:bg-[#F3EFE8]";
 
                       if (quizSubmitted) {
                         if (oIdx === q.correctIndex) {
                           optionStyle =
-                            "bg-[#EEFAF3] text-[#185C3C] border-[#6ED09C] font-semibold";
+                            "bg-[#EEFAF3] text-[#145338] border-[#52B782] font-semibold";
                         } else if (isSelected && oIdx !== q.correctIndex) {
                           optionStyle =
-                            "bg-[#FFF1F0] text-[#9E2B25] border-[#F49B94]";
+                            "bg-[#FFF1F0] text-[#8F231C] border-[#E07C73]";
                         }
                       } else if (isSelected) {
                         optionStyle =
-                          "bg-[#3A72D2] text-white border-[#3A72D2] font-semibold";
+                          "bg-[#295CB8] text-white border-[#295CB8] font-semibold";
                       }
 
                       return (
                         <button
                           key={oIdx}
                           type="button"
+                          role="radio"
+                          aria-checked={isSelected}
                           disabled={quizSubmitted}
                           onClick={() =>
                             setQuizAnswers((prev) => ({ ...prev, [q.id]: oIdx }))
                           }
-                          className={`text-left px-4 py-3 rounded-xl border text-sm transition-colors cursor-pointer flex items-center justify-between gap-2 ${optionStyle}`}
+                          className={`text-left px-4 py-3 min-h-[48px] rounded-xl border text-sm transition-colors cursor-pointer flex items-center justify-between gap-2 ${optionStyle}`}
                         >
                           <span>{opt}</span>
                           {quizSubmitted && oIdx === q.correctIndex && (
-                            <CheckCircle2 className="w-4 h-4 shrink-0 text-[#1B8A5A]" />
+                            <CheckCircle2
+                              className="w-4 h-4 shrink-0 text-[#167854]"
+                              aria-label="Correct answer"
+                            />
                           )}
                           {quizSubmitted && isSelected && oIdx !== q.correctIndex && (
-                            <XCircle className="w-4 h-4 shrink-0 text-[#D1433A]" />
+                            <XCircle
+                              className="w-4 h-4 shrink-0 text-[#C84331]"
+                              aria-label="Your selected answer (incorrect)"
+                            />
                           )}
                         </button>
                       );
@@ -761,15 +820,15 @@ export const UnitWorkspace: React.FC<UnitWorkspaceProps> = ({
                     <p
                       className={`text-sm p-3 rounded-xl ${
                         isCorrect
-                          ? "bg-[#EEFAF3] text-[#185C3C]"
-                          : "bg-[#FFF6EB] text-[#7D4F12]"
+                          ? "bg-[#EEFAF3] text-[#145338]"
+                          : "bg-[#FFF6EB] text-[#6B420D]"
                       }`}
                     >
                       <strong>{isCorrect ? "Well done!" : "Tip:"}</strong>{" "}
                       {q.explanation}
                     </p>
                   )}
-                </div>
+                </fieldset>
               );
             })}
           </div>
@@ -780,7 +839,7 @@ export const UnitWorkspace: React.FC<UnitWorkspaceProps> = ({
                 type="button"
                 onClick={handleSubmitQuiz}
                 disabled={Object.keys(quizAnswers).length < unit.quiz.length}
-                className="px-6 py-3 rounded-xl bg-[#E25C49] hover:bg-[#CC4B38] disabled:opacity-45 text-white text-sm font-semibold transition-colors cursor-pointer"
+                className="px-6 py-3 min-h-[44px] rounded-xl bg-[#C84331] hover:bg-[#AD3525] disabled:opacity-45 text-white text-sm font-semibold transition-colors cursor-pointer"
               >
                 Submit Quiz Answers
               </button>
@@ -788,9 +847,9 @@ export const UnitWorkspace: React.FC<UnitWorkspaceProps> = ({
               <button
                 type="button"
                 onClick={handleRetryQuiz}
-                className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-[#242938] hover:bg-[#383F54] text-white text-sm font-semibold transition-colors cursor-pointer"
+                className="inline-flex items-center gap-2 px-5 py-3 min-h-[44px] rounded-xl bg-[#242938] hover:bg-[#383F54] text-white text-sm font-semibold transition-colors cursor-pointer"
               >
-                <RotateCcw className="w-4 h-4" />
+                <RotateCcw className="w-4 h-4" aria-hidden="true" />
                 <span>Retake Quiz</span>
               </button>
             )}

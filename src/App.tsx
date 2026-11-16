@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ChatTutor } from "./components/ChatTutor";
 import { FlashcardStudio } from "./components/FlashcardStudio";
 import { HomeOverview } from "./components/HomeOverview";
@@ -21,6 +21,7 @@ export default function App() {
   const {
     progress,
     setStudentName,
+    toggleLargeText,
     toggleFlashcardMastered,
     completeLesson,
     completeExercise,
@@ -30,14 +31,14 @@ export default function App() {
     resetProgress,
   } = useProgress();
 
+  useEffect(() => {
+    document.documentElement.classList.toggle("large-text", Boolean(progress.largeText));
+  }, [progress.largeText]);
+
   const handleSelectTab = (tab: AppTab) => {
     stopSpeaking();
     setActiveTab(tab);
-    if (tab !== "home") {
-      setSelectedUnitId(null);
-    } else {
-      setSelectedUnitId(null);
-    }
+    setSelectedUnitId(null);
     if (tab === "flashcards") {
       setFlashcardInitialUnit("all");
     }
@@ -74,13 +75,24 @@ export default function App() {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#FFFDF8] text-[#242938]">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:px-4 focus:py-2.5 focus:rounded-xl focus:bg-[#242938] focus:text-white focus:text-sm focus:font-semibold"
+      >
+        Skip to main content
+      </a>
+
       <TopNav
         activeTab={activeTab}
         onSelectTab={handleSelectTab}
         onStartQuickQuiz={handleStartQuickQuiz}
       />
 
-      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-10">
+      <main
+        id="main-content"
+        tabIndex={-1}
+        className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-10 focus:outline-none"
+      >
         {activeTab === "home" && !activeUnit && (
           <HomeOverview
             progress={progress}
@@ -131,6 +143,7 @@ export default function App() {
           <ProgressDashboard
             progress={progress}
             onUpdateName={setStudentName}
+            onToggleLargeText={toggleLargeText}
             onResetProgress={resetProgress}
             onOpenUnit={(id) => handleOpenUnit(id, "lesson")}
           />
@@ -138,47 +151,47 @@ export default function App() {
       </main>
 
       <footer className="border-t border-[#EDE6DA] bg-[#FAF6EE]">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#5E677D]">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#4A5368]">
           <p className="font-medium text-[#242938]">
             SunnyEnglish · Grade 7 Study Studio
           </p>
-          <div className="flex flex-wrap items-center gap-5">
+          <nav aria-label="Footer navigation" className="flex flex-wrap items-center gap-5">
             <button
               type="button"
               onClick={() => handleSelectTab("home")}
-              className="hover:text-[#242938] cursor-pointer"
+              className="hover:text-[#242938] min-h-[40px] px-1 cursor-pointer"
             >
               Lessons
             </button>
             <button
               type="button"
               onClick={() => handleSelectTab("flashcards")}
-              className="hover:text-[#242938] cursor-pointer"
+              className="hover:text-[#242938] min-h-[40px] px-1 cursor-pointer"
             >
               Flashcards
             </button>
             <button
               type="button"
               onClick={() => handleSelectTab("sentence-lab")}
-              className="hover:text-[#242938] cursor-pointer"
+              className="hover:text-[#242938] min-h-[40px] px-1 cursor-pointer"
             >
               Sentence Lab
             </button>
             <button
               type="button"
               onClick={() => handleSelectTab("chat")}
-              className="hover:text-[#242938] cursor-pointer"
+              className="hover:text-[#242938] min-h-[40px] px-1 cursor-pointer"
             >
               Chat Tutor
             </button>
             <button
               type="button"
               onClick={() => handleSelectTab("progress")}
-              className="hover:text-[#242938] cursor-pointer"
+              className="hover:text-[#242938] min-h-[40px] px-1 cursor-pointer"
             >
               Progress
             </button>
-          </div>
+          </nav>
         </div>
       </footer>
     </div>

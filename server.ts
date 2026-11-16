@@ -11,7 +11,7 @@ const PORT = 3000;
 const app = express();
 app.use(express.json({ limit: "2mb" }));
 
-function getAiClient(): GoogleGenAI | null {
+function getAiClient(apiVersion?: string): GoogleGenAI | null {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     return null;
@@ -19,6 +19,7 @@ function getAiClient(): GoogleGenAI | null {
   return new GoogleGenAI({
     apiKey,
     httpOptions: {
+      ...(apiVersion ? { apiVersion } : {}),
       headers: {
         "User-Agent": "aistudio-build",
       },
@@ -38,6 +39,25 @@ type ChatRequestBody = {
   history?: ChatTurn[];
   message?: string;
 };
+
+function parseJsonSafe(rawText: string): {
+  reply?: string;
+  gentleTip?: string;
+  tipExample?: string;
+  suggestedReplies?: string[];
+} {
+  const stripped = rawText
+    .replace(/^```json\s*/i, "")
+    .replace(/^```\s*/i, "")
+    .replace(/```\s*$/i, "")
+    .trim();
+  return JSON.parse(stripped || "{}") as {
+    reply?: string;
+    gentleTip?: string;
+    tipExample?: string;
+    suggestedReplies?: string[];
+  };
+}
 
 app.post("/api/chat", async (req, res) => {
   const ai = getAiClient();
@@ -116,12 +136,7 @@ app.post("/api/chat", async (req, res) => {
     });
 
     const rawText = (response.text ?? "{}").trim();
-    const parsed = JSON.parse(rawText) as {
-      reply?: string;
-      gentleTip?: string;
-      tipExample?: string;
-      suggestedReplies?: string[];
-    };
+    const parsed = parseJsonSafe(rawText);
 
     res.json({
       reply:
@@ -140,7 +155,8 @@ app.post("/api/chat", async (req, res) => {
 });
 
 app.post("/api/tts", async (req, res) => {
-  const ai = getAiClient();
+  // speechConfig and speechMetadata require v1beta on the Gemini API
+  const ai = getAiClient("v1beta");
   if (!ai) {
     res.status(503).json({
       error: "Gemini API key is not configured.",

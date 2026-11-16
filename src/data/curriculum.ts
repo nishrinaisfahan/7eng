@@ -126,8 +126,8 @@ export const UNITS: UnitData[] = [
     summary: "Greetings · Family Tree · Morning & Evening Routines",
     pastelCardBg: "bg-[#FFF5F0]",
     pastelAccentBg: "bg-[#FFE6DC]",
-    accentText: "text-[#B84534]",
-    accentButton: "bg-[#E25C49] hover:bg-[#CC4B38] text-white",
+    accentText: "text-[#9C3526]",
+    accentButton: "bg-[#C84331] hover:bg-[#AD3525] text-white",
     dialogueTitle: "Meeting a New Classmate",
     dialogue: [
       {
@@ -239,8 +239,8 @@ export const UNITS: UnitData[] = [
     summary: "Hobby Verbs · Like / Enjoy + -ing · Frequency Adverbs",
     pastelCardBg: "bg-[#F3F8FF]",
     pastelAccentBg: "bg-[#E0ECFF]",
-    accentText: "text-[#2959A8]",
-    accentButton: "bg-[#3A72D2] hover:bg-[#2F5FB3] text-white",
+    accentText: "text-[#234C94]",
+    accentButton: "bg-[#295CB8] hover:bg-[#204A96] text-white",
     dialogueTitle: "Talking About Weekend Hobbies",
     dialogue: [
       {
@@ -379,8 +379,8 @@ export const UNITS: UnitData[] = [
     summary: "Appearance (has / wears) · Personality (is) · Kind Adjectives",
     pastelCardBg: "bg-[#F9F4FF]",
     pastelAccentBg: "bg-[#EDE0FF]",
-    accentText: "text-[#6D3AA8]",
-    accentButton: "bg-[#7D49BA] hover:bg-[#6939A2] text-white",
+    accentText: "text-[#582B8C]",
+    accentButton: "bg-[#6838A3] hover:bg-[#542B87] text-white",
     dialogueTitle: "Guess Who in Our Class",
     dialogue: [
       {
@@ -514,8 +514,8 @@ export const UNITS: UnitData[] = [
     summary: "Subject & Object Pronouns · Possessives · SVO Sentence Order",
     pastelCardBg: "bg-[#F0FAF6]",
     pastelAccentBg: "bg-[#D9F3E8]",
-    accentText: "text-[#1C7654]",
-    accentButton: "bg-[#22946A] hover:bg-[#1B7A57] text-white",
+    accentText: "text-[#146346]",
+    accentButton: "bg-[#167854] hover:bg-[#116143] text-white",
     dialogueTitle: "Sharing Notebooks After Class",
     dialogue: [
       {
@@ -644,8 +644,8 @@ export const UNITS: UnitData[] = [
     summary: "Taste & Nutrition · Kitchen Tools · Recipe Sequence",
     pastelCardBg: "bg-[#FFFBEB]",
     pastelAccentBg: "bg-[#FEF0C3]",
-    accentText: "text-[#94620E]",
-    accentButton: "bg-[#D99018] hover:bg-[#BC7A11] text-white",
+    accentText: "text-[#7A4F0B]",
+    accentButton: "bg-[#A16207] hover:bg-[#854D0E] text-white",
     dialogueTitle: "Cooking Banana Pancakes Together",
     dialogue: [
       {

@@ -14,9 +14,18 @@
     -webkit-font-smoothing: antialiased;
   }
 
+  html.large-text {
+    font-size: 18px;
+  }
+
   h1, h2, h3, .font-display {
     font-family: var(--font-display);
     text-wrap: balance;
+  }
+
+  :focus-visible {
+    outline: 3px solid #295CB8;
+    outline-offset: 2px;
   }
 }
 

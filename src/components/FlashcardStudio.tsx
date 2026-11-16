@@ -30,6 +30,7 @@ export const FlashcardStudio: React.FC<FlashcardStudioProps> = ({
   const [flipped, setFlipped] = useState(false);
   const [slowAudio, setSlowAudio] = useState(false);
   const [speaking, setSpeaking] = useState(false);
+  const [announcement, setAnnouncement] = useState("");
 
   // Audio Listening Match state
   const [listenRound, setListenRound] = useState(0);
@@ -53,23 +54,47 @@ export const FlashcardStudio: React.FC<FlashcardStudioProps> = ({
     setFlipped(false);
     setListenRound(0);
     setListenPick(null);
+    setAnnouncement("");
   };
 
-  const handleSpeak = async (text: string, e?: React.MouseEvent) => {
-    if (e) e.stopPropagation();
+  const handleSpeak = async (text: string) => {
     setSpeaking(true);
     await speakEnglish(text, { slow: slowAudio });
     setSpeaking(false);
   };
 
+  const handleFlip = (nextState?: boolean) => {
+    setFlipped((prev) => {
+      const target = typeof nextState === "boolean" ? nextState : !prev;
+      if (activeCard) {
+        setAnnouncement(
+          target
+            ? `Showing meaning for ${activeCard.word}: ${activeCard.meaning}`
+            : `Showing picture for ${activeCard.word}`
+        );
+      }
+      return target;
+    });
+  };
+
   const handleNext = () => {
+    const nextIdx = (safeIndex + 1) % filteredCards.length;
     setFlipped(false);
-    setCardIndex((prev) => (prev + 1) % filteredCards.length);
+    setCardIndex(nextIdx);
+    const nextCard = filteredCards[nextIdx];
+    if (nextCard) {
+      setAnnouncement(`Card ${nextIdx + 1} of ${filteredCards.length}: ${nextCard.word}`);
+    }
   };
 
   const handlePrev = () => {
+    const prevIdx = (safeIndex - 1 + filteredCards.length) % filteredCards.length;
     setFlipped(false);
-    setCardIndex((prev) => (prev - 1 + filteredCards.length) % filteredCards.length);
+    setCardIndex(prevIdx);
+    const prevCard = filteredCards[prevIdx];
+    if (prevCard) {
+      setAnnouncement(`Card ${prevIdx + 1} of ${filteredCards.length}: ${prevCard.word}`);
+    }
   };
 
   // Listening challenge round setup
@@ -101,6 +126,11 @@ export const FlashcardStudio: React.FC<FlashcardStudioProps> = ({
         listeningChallenge.target.word,
         true
       );
+      setAnnouncement(`Correct! ${listeningChallenge.target.word} matches the audio.`);
+    } else {
+      setAnnouncement(
+        `Not quite. The spoken word was ${listeningChallenge.target.word}.`
+      );
     }
   };
 
@@ -111,9 +141,13 @@ export const FlashcardStudio: React.FC<FlashcardStudioProps> = ({
 
   return (
     <div className="space-y-7">
+      <div aria-live="polite" className="sr-only">
+        {announcement}
+      </div>
+
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <p className="text-sm font-medium text-[#5E677D]">
+          <p className="text-sm font-medium text-[#4A5368]">
             Picture Vocabulary & Pronunciation · {progress.masteredFlashcards.length} /{" "}
             {FLASHCARDS.length} Mastered
           </p>
@@ -123,31 +157,39 @@ export const FlashcardStudio: React.FC<FlashcardStudioProps> = ({
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
-          <div className="inline-flex items-center gap-1 p-1 bg-[#F4EFE6] rounded-xl">
+          <div
+            role="tablist"
+            aria-label="Flashcard study modes"
+            className="inline-flex items-center gap-1 p-1 bg-[#F4EFE6] rounded-xl"
+          >
             <button
               type="button"
+              role="tab"
+              aria-selected={mode === "study"}
               onClick={() => setMode("study")}
-              className={`px-3.5 py-2 rounded-lg text-sm font-semibold whitespace-nowrap shrink-0 transition-colors cursor-pointer ${
+              className={`px-4 py-2 min-h-[40px] rounded-lg text-sm font-semibold whitespace-nowrap shrink-0 transition-colors cursor-pointer ${
                 mode === "study"
                   ? "bg-white text-[#242938] shadow-xs"
-                  : "text-[#525B70] hover:text-[#242938]"
+                  : "text-[#4A5368] hover:text-[#242938]"
               }`}
             >
               Flip & Study
             </button>
             <button
               type="button"
+              role="tab"
+              aria-selected={mode === "listening"}
               onClick={() => {
                 setMode("listening");
                 setListenPick(null);
               }}
-              className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-semibold whitespace-nowrap shrink-0 transition-colors cursor-pointer ${
+              className={`inline-flex items-center gap-1.5 px-4 py-2 min-h-[40px] rounded-lg text-sm font-semibold whitespace-nowrap shrink-0 transition-colors cursor-pointer ${
                 mode === "listening"
                   ? "bg-white text-[#242938] shadow-xs"
-                  : "text-[#525B70] hover:text-[#242938]"
+                  : "text-[#4A5368] hover:text-[#242938]"
               }`}
             >
-              <Headphones className="w-4 h-4" />
+              <Headphones className="w-4 h-4" aria-hidden="true" />
               <span>Audio Match Game</span>
             </button>
           </div>
@@ -156,14 +198,19 @@ export const FlashcardStudio: React.FC<FlashcardStudioProps> = ({
 
       {/* Unit Filter Tabs & Audio Speed */}
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <div className="flex flex-wrap items-center gap-1.5 p-1 bg-[#F4EFE6] rounded-xl">
+        <div
+          role="group"
+          aria-label="Filter flashcards by unit"
+          className="flex flex-wrap items-center gap-1.5 p-1 bg-[#F4EFE6] rounded-xl"
+        >
           <button
             type="button"
+            aria-pressed={selectedUnit === "all"}
             onClick={() => handleSelectUnit("all")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap shrink-0 cursor-pointer transition-colors ${
+            className={`px-3.5 py-2 min-h-[40px] rounded-lg text-xs font-semibold whitespace-nowrap shrink-0 cursor-pointer transition-colors ${
               selectedUnit === "all"
                 ? "bg-white text-[#242938] shadow-xs"
-                : "text-[#525B70] hover:text-[#242938]"
+                : "text-[#4A5368] hover:text-[#242938]"
             }`}
           >
             All Units ({FLASHCARDS.length})
@@ -172,11 +219,12 @@ export const FlashcardStudio: React.FC<FlashcardStudioProps> = ({
             <button
               key={u.id}
               type="button"
+              aria-pressed={selectedUnit === u.id}
               onClick={() => handleSelectUnit(u.id)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap shrink-0 cursor-pointer transition-colors ${
+              className={`px-3.5 py-2 min-h-[40px] rounded-lg text-xs font-semibold whitespace-nowrap shrink-0 cursor-pointer transition-colors ${
                 selectedUnit === u.id
                   ? "bg-white text-[#242938] shadow-xs"
-                  : "text-[#525B70] hover:text-[#242938]"
+                  : "text-[#4A5368] hover:text-[#242938]"
               }`}
             >
               {u.number}
@@ -184,47 +232,43 @@ export const FlashcardStudio: React.FC<FlashcardStudioProps> = ({
           ))}
         </div>
 
-        <label className="inline-flex items-center gap-2 text-sm text-[#4A5368] cursor-pointer select-none">
+        <label className="inline-flex items-center gap-2.5 min-h-[40px] text-sm text-[#3D4559] cursor-pointer select-none">
           <input
             type="checkbox"
             checked={slowAudio}
             onChange={(e) => setSlowAudio(e.target.checked)}
-            className="w-4 h-4 accent-[#3A72D2] rounded cursor-pointer"
+            className="w-5 h-5 accent-[#295CB8] rounded cursor-pointer"
           />
           <span>Slow pronunciation (0.75x)</span>
         </label>
       </div>
 
-      {/* Mode 1: Interactive 3D Flip Cards */}
+      {/* Mode 1: Accessible 3D Flip Cards (Zero nested interactive elements!) */}
       {mode === "study" && activeCard && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           <div className="lg:col-span-7 space-y-5">
-            <div className="perspective-1000">
+            <section
+              aria-label={`Flashcard ${safeIndex + 1} of ${filteredCards.length}: ${activeCard.word}`}
+              className="perspective-1000"
+            >
               <div
-                onClick={() => setFlipped((prev) => !prev)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    setFlipped((prev) => !prev);
-                  }
-                }}
-                role="button"
-                tabIndex={0}
-                aria-label={`Flashcard for ${activeCard.word}. Press Enter to flip.`}
-                className={`relative w-full min-h-[360px] transition-transform duration-500 transform-style-3d cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E25C49] rounded-3xl ${
+                className={`relative w-full min-h-[380px] transition-transform duration-500 transform-style-3d rounded-3xl ${
                   flipped ? "rotate-y-180" : ""
                 }`}
               >
                 {/* Front Face */}
                 <div
-                  className={`absolute inset-0 backface-hidden ${activeCard.pastelSurface} border border-[#E6DCD0] rounded-3xl p-7 sm:p-9 flex flex-col items-center justify-between text-center`}
+                  aria-hidden={flipped}
+                  className={`absolute inset-0 backface-hidden ${activeCard.pastelSurface} border border-[#E6DCD0] rounded-3xl p-7 sm:p-9 flex flex-col items-center justify-between text-center ${
+                    flipped ? "pointer-events-none" : ""
+                  }`}
                 >
-                  <div className="w-full flex items-center justify-between text-xs font-medium text-[#5E677D]">
+                  <div className="w-full flex items-center justify-between text-xs font-medium text-[#4A5368]">
                     <span className="tabular-nums">
                       Card {safeIndex + 1} of {filteredCards.length} ·{" "}
                       {activeCard.partOfSpeech}
                     </span>
-                    <span>{isMastered ? "Mastered" : "Tap card to flip"}</span>
+                    <span>{isMastered ? "Mastered" : "Front: Picture & Word"}</span>
                   </div>
 
                   <div className="my-4 flex flex-col items-center gap-4">
@@ -236,7 +280,7 @@ export const FlashcardStudio: React.FC<FlashcardStudioProps> = ({
                       <h2 className="font-display text-3xl sm:text-4xl font-bold text-[#242938]">
                         {activeCard.word}
                       </h2>
-                      <p className="font-mono text-sm text-[#5E677D] mt-1">
+                      <p className="font-mono text-sm text-[#4A5368] mt-1">
                         {activeCard.phonetic}
                       </p>
                     </div>
@@ -245,39 +289,44 @@ export const FlashcardStudio: React.FC<FlashcardStudioProps> = ({
                   <div className="flex flex-wrap items-center justify-center gap-3">
                     <button
                       type="button"
-                      onClick={(e) => handleSpeak(activeCard.word, e)}
-                      className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white hover:bg-[#FAF6F0] border border-[#E2D7CA] text-sm font-semibold text-[#242938] transition-colors cursor-pointer"
+                      tabIndex={flipped ? -1 : 0}
+                      onClick={() => handleSpeak(activeCard.word)}
+                      className="inline-flex items-center gap-2 px-4 py-2.5 min-h-[44px] rounded-xl bg-white hover:bg-[#FAF6F0] border border-[#D8CCBE] text-sm font-semibold text-[#242938] transition-colors cursor-pointer"
                     >
                       <Volume2
-                        className={`w-4 h-4 ${speaking ? "text-[#E25C49]" : "text-[#3A72D2]"}`}
+                        className={`w-4 h-4 ${speaking ? "text-[#C84331]" : "text-[#295CB8]"}`}
+                        aria-hidden="true"
                       />
                       <span>{speaking ? "Speaking..." : "Hear Word"}</span>
                     </button>
 
                     <button
                       type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setFlipped(true);
-                      }}
-                      className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#242938] text-white text-sm font-semibold hover:bg-[#383F54] transition-colors cursor-pointer"
+                      tabIndex={flipped ? -1 : 0}
+                      onClick={() => handleFlip(true)}
+                      className="inline-flex items-center gap-2 px-4 py-2.5 min-h-[44px] rounded-xl bg-[#242938] text-white text-sm font-semibold hover:bg-[#383F54] transition-colors cursor-pointer"
                     >
-                      <RotateCw className="w-4 h-4" />
+                      <RotateCw className="w-4 h-4" aria-hidden="true" />
                       <span>See Meaning</span>
                     </button>
                   </div>
                 </div>
 
                 {/* Back Face */}
-                <div className="absolute inset-0 backface-hidden rotate-y-180 bg-white border border-[#E6DCD0] rounded-3xl p-7 sm:p-9 flex flex-col justify-between">
-                  <div className="flex items-center justify-between text-xs font-medium text-[#5E677D]">
+                <div
+                  aria-hidden={!flipped}
+                  className={`absolute inset-0 backface-hidden rotate-y-180 bg-white border border-[#E6DCD0] rounded-3xl p-7 sm:p-9 flex flex-col justify-between ${
+                    !flipped ? "pointer-events-none" : ""
+                  }`}
+                >
+                  <div className="flex items-center justify-between text-xs font-medium text-[#4A5368]">
                     <span>{activeCard.word} · Meaning & Example</span>
-                    <span>Tap to flip back</span>
+                    <span>Back Side</span>
                   </div>
 
                   <div className="space-y-4 my-4">
                     <div>
-                      <p className="text-xs font-semibold text-[#5E677D]">
+                      <p className="text-xs font-semibold text-[#4A5368]">
                         Meaning
                       </p>
                       <p className="font-display text-xl sm:text-2xl font-bold text-[#242938] mt-1">
@@ -285,9 +334,9 @@ export const FlashcardStudio: React.FC<FlashcardStudioProps> = ({
                       </p>
                     </div>
 
-                    <div className="p-4 rounded-2xl bg-[#F6F9FF] border border-[#DCE7FA] flex items-start justify-between gap-3">
+                    <div className="p-4 rounded-2xl bg-[#F6F9FF] border border-[#D4E2F8] flex items-start justify-between gap-3">
                       <div>
-                        <p className="text-xs font-semibold text-[#3A72D2]">
+                        <p className="text-xs font-semibold text-[#234C94]">
                           Example Sentence
                         </p>
                         <p className="text-base text-[#242938] mt-1 leading-relaxed">
@@ -296,44 +345,49 @@ export const FlashcardStudio: React.FC<FlashcardStudioProps> = ({
                       </div>
                       <button
                         type="button"
-                        onClick={(e) => handleSpeak(activeCard.example, e)}
-                        aria-label="Hear example sentence"
-                        className="shrink-0 w-10 h-10 rounded-xl bg-white border border-[#D4E2F8] flex items-center justify-center text-[#3A72D2] hover:bg-[#EEF4FF] cursor-pointer"
+                        tabIndex={!flipped ? -1 : 0}
+                        onClick={() => handleSpeak(activeCard.example)}
+                        aria-label={`Hear example sentence: ${activeCard.example}`}
+                        className="shrink-0 w-11 h-11 rounded-xl bg-white border border-[#C9DAF6] flex items-center justify-center text-[#295CB8] hover:bg-[#EEF4FF] cursor-pointer"
                       >
-                        <Volume2 className="w-4 h-4" />
+                        <Volume2 className="w-4 h-4" aria-hidden="true" />
                       </button>
                     </div>
 
-                    <p className="text-sm text-[#4A5368]">
+                    <p className="text-sm text-[#3D4559]">
                       <strong>Study Tip:</strong> {activeCard.tip}
                     </p>
                   </div>
 
-                  <div className="flex items-center justify-between gap-3">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
                     <button
                       type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setFlipped(false);
-                      }}
-                      className="px-4 py-2 rounded-xl bg-[#FAF8F4] border border-[#E6DCD0] text-sm font-semibold text-[#242938] cursor-pointer"
+                      tabIndex={!flipped ? -1 : 0}
+                      onClick={() => handleFlip(false)}
+                      className="px-4 py-2.5 min-h-[44px] rounded-xl bg-[#FAF8F4] border border-[#D8CCBE] text-sm font-semibold text-[#242938] cursor-pointer"
                     >
                       Back to Picture
                     </button>
 
                     <button
                       type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
+                      tabIndex={!flipped ? -1 : 0}
+                      aria-pressed={isMastered}
+                      onClick={() => {
                         onToggleMastered(activeCard.id, activeCard.word, !isMastered);
+                        setAnnouncement(
+                          !isMastered
+                            ? `Marked ${activeCard.word} as mastered.`
+                            : `Removed ${activeCard.word} from mastered.`
+                        );
                       }}
-                      className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-colors cursor-pointer ${
+                      className={`inline-flex items-center gap-2 px-4 py-2.5 min-h-[44px] rounded-xl text-sm font-semibold transition-colors cursor-pointer ${
                         isMastered
-                          ? "bg-[#EEFAF3] border border-[#6ED09C] text-[#185C3C]"
-                          : "bg-[#22946A] hover:bg-[#1B7A57] text-white"
+                          ? "bg-[#EEFAF3] border border-[#52B782] text-[#145338]"
+                          : "bg-[#167854] hover:bg-[#116143] text-white"
                       }`}
                     >
-                      <CheckCircle2 className="w-4 h-4" />
+                      <CheckCircle2 className="w-4 h-4" aria-hidden="true" />
                       <span>
                         {isMastered ? "Mastered" : "Mark Mastered (+10 XP)"}
                       </span>
@@ -341,50 +395,56 @@ export const FlashcardStudio: React.FC<FlashcardStudioProps> = ({
                   </div>
                 </div>
               </div>
-            </div>
+            </section>
 
             {/* Card Controls */}
             <div className="flex flex-wrap items-center justify-between gap-3">
               <button
                 type="button"
                 onClick={handlePrev}
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white hover:bg-[#FAF6F0] border border-[#E6DCD0] text-sm font-semibold text-[#242938] cursor-pointer"
+                className="inline-flex items-center gap-2 px-4 py-2.5 min-h-[44px] rounded-xl bg-white hover:bg-[#FAF6F0] border border-[#D8CCBE] text-sm font-semibold text-[#242938] cursor-pointer"
               >
-                <ChevronLeft className="w-4 h-4" />
+                <ChevronLeft className="w-4 h-4" aria-hidden="true" />
                 <span>Previous</span>
               </button>
 
               <button
                 type="button"
-                onClick={() =>
-                  onToggleMastered(activeCard.id, activeCard.word, !isMastered)
-                }
-                className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold border transition-colors cursor-pointer ${
+                aria-pressed={isMastered}
+                onClick={() => {
+                  onToggleMastered(activeCard.id, activeCard.word, !isMastered);
+                  setAnnouncement(
+                    !isMastered
+                      ? `Marked ${activeCard.word} as mastered.`
+                      : `Removed ${activeCard.word} from mastered.`
+                  );
+                }}
+                className={`inline-flex items-center gap-2 px-4 py-2.5 min-h-[44px] rounded-xl text-sm font-semibold border transition-colors cursor-pointer ${
                   isMastered
-                    ? "bg-[#EEFAF3] border-[#6ED09C] text-[#185C3C]"
-                    : "bg-white border-[#E6DCD0] text-[#242938] hover:bg-[#FAF6F0]"
+                    ? "bg-[#EEFAF3] border-[#52B782] text-[#145338]"
+                    : "bg-white border-[#D8CCBE] text-[#242938] hover:bg-[#FAF6F0]"
                 }`}
               >
-                <CheckCircle2 className="w-4 h-4" />
+                <CheckCircle2 className="w-4 h-4" aria-hidden="true" />
                 <span>{isMastered ? "Mastered" : "I Know This (+10 XP)"}</span>
               </button>
 
               <button
                 type="button"
                 onClick={handleNext}
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#E25C49] hover:bg-[#CC4B38] text-white text-sm font-semibold cursor-pointer"
+                className="inline-flex items-center gap-2 px-4 py-2.5 min-h-[44px] rounded-xl bg-[#C84331] hover:bg-[#AD3525] text-white text-sm font-semibold cursor-pointer"
               >
                 <span>Next Card</span>
-                <ChevronRight className="w-4 h-4" />
+                <ChevronRight className="w-4 h-4" aria-hidden="true" />
               </button>
             </div>
           </div>
 
           {/* Deck Selector List */}
           <div className="lg:col-span-5 bg-white border border-[#EDE6DA] rounded-3xl p-5 sm:p-6 space-y-4">
-            <h3 className="font-display text-lg font-bold text-[#242938]">
+            <h2 className="font-display text-lg font-bold text-[#242938]">
               Cards in This Deck ({filteredCards.length})
-            </h3>
+            </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2 max-h-[380px] overflow-y-auto pr-1">
               {filteredCards.map((card, idx) => {
                 const active = idx === safeIndex;
@@ -393,14 +453,16 @@ export const FlashcardStudio: React.FC<FlashcardStudioProps> = ({
                   <button
                     key={card.id}
                     type="button"
+                    aria-current={active ? "true" : undefined}
                     onClick={() => {
                       setCardIndex(idx);
                       setFlipped(false);
+                      setAnnouncement(`Selected card ${idx + 1}: ${card.word}`);
                     }}
-                    className={`w-full text-left px-3.5 py-2.5 rounded-xl border transition-colors cursor-pointer flex items-center justify-between gap-3 ${
+                    className={`w-full text-left px-3.5 py-2.5 min-h-[52px] rounded-xl border transition-colors cursor-pointer flex items-center justify-between gap-3 ${
                       active
-                        ? "bg-[#FFF2EC] border-[#EEB5A4] text-[#242938] font-semibold"
-                        : "bg-[#FAF8F4] border-[#EFE9DF] text-[#4A5368] hover:bg-[#F3EFE8]"
+                        ? "bg-[#FFF2EC] border-[#DF9F8B] text-[#242938] font-semibold"
+                        : "bg-[#FAF8F4] border-[#EFE9DF] text-[#3D4559] hover:bg-[#F3EFE8]"
                     }`}
                   >
                     <div className="flex items-center gap-3 min-w-0">
@@ -410,13 +472,16 @@ export const FlashcardStudio: React.FC<FlashcardStudioProps> = ({
                       />
                       <div className="truncate">
                         <p className="text-sm truncate text-[#242938]">{card.word}</p>
-                        <p className="text-xs text-[#6B7489] truncate">
+                        <p className="text-xs text-[#4A5368] truncate">
                           {card.partOfSpeech}
                         </p>
                       </div>
                     </div>
                     {done && (
-                      <CheckCircle2 className="w-4 h-4 text-[#1B8A5A] shrink-0" />
+                      <CheckCircle2
+                        className="w-4 h-4 text-[#167854] shrink-0"
+                        aria-label="Mastered"
+                      />
                     )}
                   </button>
                 );
@@ -428,10 +493,13 @@ export const FlashcardStudio: React.FC<FlashcardStudioProps> = ({
 
       {/* Mode 2: Audio Match Listening Game */}
       {mode === "listening" && listeningChallenge && (
-        <div className="bg-white border border-[#EDE6DA] rounded-3xl p-6 sm:p-8 max-w-4xl space-y-6">
+        <section
+          aria-label="Audio listening match game"
+          className="bg-white border border-[#EDE6DA] rounded-3xl p-6 sm:p-8 max-w-4xl space-y-6"
+        >
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
-              <p className="text-xs font-medium text-[#5E677D]">
+              <p className="text-xs font-medium text-[#4A5368]">
                 Audio Challenge · Round {listenRound + 1} · Correct: {listenScore}
               </p>
               <h2 className="font-display text-2xl font-bold text-[#242938] mt-1">
@@ -446,9 +514,9 @@ export const FlashcardStudio: React.FC<FlashcardStudioProps> = ({
                   `${listeningChallenge.target.word}. ${listeningChallenge.target.example}`
                 )
               }
-              className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-[#3A72D2] hover:bg-[#2F5FB3] text-white text-sm font-semibold transition-colors cursor-pointer"
+              className="inline-flex items-center gap-2 px-5 py-3 min-h-[44px] rounded-xl bg-[#295CB8] hover:bg-[#204A96] text-white text-sm font-semibold transition-colors cursor-pointer"
             >
-              <Volume2 className="w-4 h-4" />
+              <Volume2 className="w-4 h-4" aria-hidden="true" />
               <span>{speaking ? "Playing Audio..." : "Play Word & Sentence"}</span>
             </button>
           </div>
@@ -459,12 +527,12 @@ export const FlashcardStudio: React.FC<FlashcardStudioProps> = ({
               const isPicked = listenPick === choice.id;
 
               let style =
-                `${choice.pastelSurface} border-[#EAE2D6] hover:border-[#B9C9E8]`;
+                `${choice.pastelSurface} border-[#DFD5C7] hover:border-[#7FA2DF]`;
               if (listenPick) {
                 if (isTarget) {
-                  style = "bg-[#EEFAF3] border-[#6ED09C]";
+                  style = "bg-[#EEFAF3] border-[#52B782]";
                 } else if (isPicked && !isTarget) {
-                  style = "bg-[#FFF1F0] border-[#F49B94]";
+                  style = "bg-[#FFF1F0] border-[#E07C73]";
                 }
               }
 
@@ -474,7 +542,7 @@ export const FlashcardStudio: React.FC<FlashcardStudioProps> = ({
                   type="button"
                   disabled={Boolean(listenPick)}
                   onClick={() => handleChooseListening(choice.id)}
-                  className={`p-5 rounded-2xl border-2 text-left transition-colors cursor-pointer flex items-center gap-4 ${style}`}
+                  className={`p-5 min-h-[96px] rounded-2xl border-2 text-left transition-colors cursor-pointer flex items-center gap-4 ${style}`}
                 >
                   <CuteIllustration
                     kind={choice.illustration}
@@ -484,15 +552,21 @@ export const FlashcardStudio: React.FC<FlashcardStudioProps> = ({
                     <p className="font-display text-lg font-bold text-[#242938]">
                       {choice.word}
                     </p>
-                    <p className="text-xs text-[#5E677D] mt-0.5 line-clamp-2">
+                    <p className="text-xs text-[#4A5368] mt-0.5 line-clamp-2">
                       {choice.meaning}
                     </p>
                   </div>
                   {listenPick && isTarget && (
-                    <CheckCircle2 className="w-5 h-5 text-[#1B8A5A] shrink-0" />
+                    <CheckCircle2
+                      className="w-5 h-5 text-[#167854] shrink-0"
+                      aria-label="Correct match"
+                    />
                   )}
                   {listenPick && isPicked && !isTarget && (
-                    <XCircle className="w-5 h-5 text-[#D1433A] shrink-0" />
+                    <XCircle
+                      className="w-5 h-5 text-[#C84331] shrink-0"
+                      aria-label="Incorrect match"
+                    />
                   )}
                 </button>
               );
@@ -500,7 +574,11 @@ export const FlashcardStudio: React.FC<FlashcardStudioProps> = ({
           </div>
 
           {listenPick && (
-            <div className="flex flex-wrap items-center justify-between gap-4 pt-2 border-t border-[#EDE6DA]">
+            <div
+              role="status"
+              aria-live="polite"
+              className="flex flex-wrap items-center justify-between gap-4 pt-3 border-t border-[#EDE6DA]"
+            >
               <p className="text-sm text-[#242938]">
                 {listenPick === listeningChallenge.target.id
                   ? `Spot on! "${listeningChallenge.target.word}" means: ${listeningChallenge.target.meaning}`
@@ -509,13 +587,13 @@ export const FlashcardStudio: React.FC<FlashcardStudioProps> = ({
               <button
                 type="button"
                 onClick={handleNextListeningRound}
-                className="px-5 py-2.5 rounded-xl bg-[#242938] hover:bg-[#383F54] text-white text-sm font-semibold cursor-pointer"
+                className="px-5 py-2.5 min-h-[44px] rounded-xl bg-[#242938] hover:bg-[#383F54] text-white text-sm font-semibold cursor-pointer"
               >
                 Next Listening Round →
               </button>
             </div>
           )}
-        </div>
+        </section>
       )}
     </div>
   );

@@ -15,6 +15,7 @@ export type ActivityItem = {
 
 export type StudentProgress = {
   studentName: string;
+  largeText: boolean;
   xp: number;
   streakDays: number;
   lastActiveDate: string;
@@ -37,6 +38,7 @@ function getTodayIso(): string {
 function createInitialProgress(): StudentProgress {
   return {
     studentName: "Grade 7 Learner",
+    largeText: false,
     xp: 40,
     streakDays: 1,
     lastActiveDate: getTodayIso(),
@@ -125,6 +127,10 @@ export function useProgress() {
     const trimmed = name.trim();
     if (!trimmed) return;
     setProgress((prev) => ({ ...prev, studentName: trimmed }));
+  }, []);
+
+  const toggleLargeText = useCallback(() => {
+    setProgress((prev) => ({ ...prev, largeText: !prev.largeText }));
   }, []);
 
   const toggleFlashcardMastered = useCallback(
@@ -271,6 +277,7 @@ export function useProgress() {
   return {
     progress,
     setStudentName,
+    toggleLargeText,
     toggleFlashcardMastered,
     completeLesson,
     completeExercise,
